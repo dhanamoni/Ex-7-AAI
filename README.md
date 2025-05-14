@@ -19,33 +19,58 @@ Step 5: Construct the main program to read the paragraph  and perform text summa
       
 ## Program:
 ~~~
-pip install SpeechRecognition
-pip install pyaudio
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize, sent_tokenize
+from nltk.stem import PorterStemmer
+nltk.download('punkt')
+nltk.download('stopwords')
 
-import speech_recognition as sr
-r = sr.Recognizer()
+def preprocess_text(text):
+  words = word_tokenize (text)
+  # Remove stopwords and punctuation
+  stop_words = set(stopwords.words('english'))
+  filtered_words = [word for word in words if word.lower() not in stop_words and word.isalnum()]
+  # Stemming
+  stemmer = PorterStemmer()
+  stemmed_words = [stemmer.stem (word) for word in filtered_words]
+  return stemmed_words
 
-duration = 15
-print("Say something:")
+def generate_summary (text, num_sentences=3):
+  sentences = sent_tokenize(text)
+  preprocessed_text = preprocess_text(text)
+  # Calculate the frequency of each word
+  word_frequencies = nltk. FreqDist(preprocessed_text)
+  # Calculate the score for each sentence based on word frequency
+  sentence_scores = {}
+  for sentence in sentences:
+    for word, freq in word_frequencies.items():
+      if word in sentence.lower():
+        if sentence not in sentence_scores:
+          sentence_scores [sentence] = freq
+        else:
+          sentence_scores [sentence] += freq
+  # Select top N sentences with highest scores
+  summary_sentences = sorted(sentence_scores, key=sentence_scores.get, reverse=True) [:num_sentences]
+  return''.join(summary_sentences)
 
-with sr.Microphone() as source :
-    audio_data = r.listen(source,timeout = duration)
+if __name__=="__main__":
+	input_text ="""
+	Natural language processing (NLP) is a subfield of artificial intelligence.
+	It involves the development of algorithms and models that enact NLP.
+	NLP is used in various applications, including chatbots, language Understanding, and language generation.
+	This program demonstrates a simple text summarization using NLP"""
+summary = generate_summary(input_text)
+print("Origina1 Text: ")
+print (input_text )
+print( " \nSummary : " )
+print(summary)
 
-try:
-    text = r.recognize_google(audio_data)
-    print("You said:", text)
-except sr.UnknownValueError:
-    print("Sorry, could not understand audio")
-except sr.RequestError as e:
-    print(f'Error with the request to Google Speech Recognition service: {e}')
-except Exception as e:
-    print(f'Error: {e}')
 ~~~
 
 ## Output:
 
-![image](https://github.com/user-attachments/assets/b13cb01e-b90d-4bea-9975-146adacbf629)
-
+![image](https://github.com/user-attachments/assets/7afef9d6-75f0-4a0d-ab6a-d91da1b308f3)
 
 ## Result:
 Thus ,the program to perform the Text summarization is executed sucessfully.
